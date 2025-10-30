@@ -1,34 +1,30 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { getDb } from '@/lib/db';
 
 export async function GET(request, { params }) {
   try {
     const { id } = params;
+    const db = await getDb();
 
     // Get roadmap
-    const roadmapQuery = 'SELECT * FROM user_roadmaps WHERE id = $1';
-    const roadmapResult = await query(roadmapQuery, [id]);
+    const roadmap = await db.collection('roadmaps').findOne({ _id: id });
 
-    if (roadmapResult.rows.length === 0) {
+    if (!roadmap) {
       return NextResponse.json(
         { error: 'Roadmap not found' },
         { status: 404 }
       );
     }
 
-    const roadmap = roadmapResult.rows[0];
-
     // Get topics
-    const topicsQuery = `
-      SELECT * FROM roadmap_topics 
-      WHERE roadmap_id = $1 
-      ORDER BY order_index ASC
-    `;
-    const topicsResult = await query(topicsQuery, [id]);
+    const topics = await db.collection('topics')
+      .find({ roadmap_id: id })
+      .sort({ order_index: 1 })
+      .toArray();
 
     return NextResponse.json({
       roadmap,
-      topics: topicsResult.rows
+      topics
     });
 
   } catch (error) {

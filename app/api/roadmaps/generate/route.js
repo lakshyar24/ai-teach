@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
-import { query, initDatabase } from '@/lib/db';
+import { getDb } from '@/lib/db';
 import { generateRoadmap } from '@/lib/perplexity';
 
 export async function POST(request) {
   try {
-    // Initialize database if not already done
-    await initDatabase();
-
     const body = await request.json();
     const { goal, totalDays, hoursPerDay, skillLevel, focusAreas } = body;
 
@@ -33,46 +30,41 @@ export async function POST(request) {
     console.log('Roadmap generated successfully:', roadmapData.title);
 
     // Save roadmap to database
+    const db = await getDb();
     const roadmapId = uuidv4();
-    const insertRoadmapQuery = `
-      INSERT INTO user_roadmaps (id, title, goal, total_days, hours_per_day, skill_level, focus_areas, is_custom)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, true)
-      RETURNING *
-    `;
-
-    const roadmapResult = await query(insertRoadmapQuery, [
-      roadmapId,
-      roadmapData.title,
+    
+    const roadmap = {
+      _id: roadmapId,
+      title: roadmapData.title,
       goal,
-      parseInt(totalDays),
-      parseFloat(hoursPerDay),
-      skillLevel,
-      focusAreas || []
-    ]);
+      total_days: parseInt(totalDays),
+      hours_per_day: parseFloat(hoursPerDay),
+      skill_level: skillLevel,
+      focus_areas: focusAreas || [],
+      is_custom: true,
+      created_at: new Date()
+    };
 
+    await db.collection('roadmaps').insertOne(roadmap);
     console.log('Roadmap saved to database');
 
     // Save topics
     const topics = roadmapData.topics || [];
-    for (const topic of topics) {
-      const topicId = uuidv4();
-      const insertTopicQuery = `
-        INSERT INTO roadmap_topics (id, roadmap_id, title, description, order_index, estimated_hours, learning_objectives)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-      `;
+    const topicsToInsert = topics.map(topic => ({
+      _id: uuidv4(),
+      roadmap_id: roadmapId,
+      title: topic.title,
+      description: topic.description,
+      order_index: topic.order,
+      estimated_hours: topic.estimated_hours,
+      learning_objectives: topic.learning_objectives || [],
+      created_at: new Date()
+    }));
 
-      await query(insertTopicQuery, [
-        topicId,
-        roadmapId,
-        topic.title,
-        topic.description,
-        topic.order,
-        topic.estimated_hours,
-        topic.learning_objectives || []
-      ]);
+    if (topicsToInsert.length > 0) {
+      await db.collection('topics').insertMany(topicsToInsert);
+      console.log(`${topics.length} topics saved to database`);
     }
-
-    console.log(`${topics.length} topics saved to database`);
 
     return NextResponse.json({
       success: true,
