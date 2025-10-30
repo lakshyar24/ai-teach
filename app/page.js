@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Sparkles, Target, Clock, Brain, Rocket, ArrowRight } from 'lucide-react';
+import { Sparkles, Target, Clock, Brain, Rocket, ArrowRight, Code2 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
