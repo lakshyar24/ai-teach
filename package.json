@@ -1,5 +1,5 @@
 {
-    "name": "nextjs-mongo-template",
+    "name": "ai-tutor-roadmap",
     "version": "0.1.0",
     "private": true,
     "scripts": {
@@ -50,7 +50,10 @@
         "mongodb": "^6.6.0",
         "next": "14.2.3",
         "next-themes": "^0.4.6",
+        "openai": "^4.77.0",
+        "pg": "^8.13.1",
         "react": "^18",
+        "react-chrono": "^2.7.1",
         "react-day-picker": "^9.7.0",
         "react-dom": "^18",
         "react-hook-form": "^7.58.1",
