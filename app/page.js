@@ -56,12 +56,20 @@ export default function HomePage() {
             Our AI analyzes your objectives and creates a personalized learning path just for you.
           </p>
           
-          <Link href="/create-roadmap">
-            <Button size="lg" className="text-lg px-8 py-6 bg-blue-600 hover:bg-blue-700">
-              Create Your Roadmap
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/create-roadmap">
+              <Button size="lg" className="text-lg px-8 py-6 bg-blue-600 hover:bg-blue-700">
+                Create Your Roadmap
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
+            <Link href="/visualize">
+              <Button size="lg" variant="outline" className="text-lg px-8 py-6">
+                <Code2 className="mr-2 w-5 h-5" />
+                Code Visualizer
+              </Button>
+            </Link>
+          </div>
         </motion.div>
 
         {/* Features Grid */}
